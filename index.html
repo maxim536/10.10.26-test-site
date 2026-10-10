@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>LogiPanel — панель управления логистикой</title>
+    <script>
+    (function () {
+      localStorage.setItem("logipanel-theme", "dark");
+      var accent = localStorage.getItem("logipanel-accent");
+      document.documentElement.setAttribute("data-theme", "dark");
+      if (accent) {
+        document.documentElement.style.setProperty("--accent-hex", accent);
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Перейти к основному контенту</a>
+
+  <div class="layout">
+    <header class="header">
+      <button type="button" class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false">
+        <span class="burger__line"></span>
+        <span class="burger__line"></span>
+        <span class="burger__line"></span>
+        <span class="sr-only">Меню</span>
+      </button>
+      <h1 class="header__logo">LogiPanel</h1>
+      <p class="header__tagline">Панель управления логистической компанией</p>
+
+      <div class="header__tools">
+        <label class="theme-label" for="theme-select">Тема</label>
+        <select id="theme-select" class="theme-select" aria-label="Выбор темы">
+          <option value="light">Светлая</option>
+          <option value="dark" selected>Тёмная</option>
+          <option value="contrast">Контраст</option>
+        </select>
+        <label class="theme-label" for="accent-picker">Акцент</label>
+        <input type="color" id="accent-picker" class="accent-picker" value="#2563eb" aria-label="Акцентный цвет">
+        <button type="button" class="btn btn--primary" id="btn-new-order">Новый заказ</button>
+      </div>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
+
+    <nav class="sidebar" id="sidebar" aria-label="Основная навигация">
+      <ul class="nav" role="list">
+        <li><a href="#" class="nav__link nav__link--active" data-section="orders">Заказы</a></li>
+        <li><a href="#" class="nav__link" data-section="drivers">Водители</a></li>
+        <li><a href="#" class="nav__link" data-section="vehicles">Транспорт</a></li>
+        <li><a href="#" class="nav__link" data-section="help">Справка</a></li>
+      </ul>
+    </nav>
+
+    <main id="main-content" class="main" tabindex="-1"></main>
+
+    <footer class="footer">
+      <p>© 2026 LogiPanel · Учебный проект</p>
+      <address>Служба поддержки: support@logipanel.local</address>
+    </footer>
+  </div>
+
+  <!-- Модалка деталей -->
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal__header">
+        <h2 id="modal-title" class="modal__title">Детали</h2>
+        <button type="button" class="modal__close" id="modal-close" aria-label="Закрыть">×</button>
+      </header>
+      <div class="modal__body" id="modal-body"></div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--secondary" id="modal-cancel">Закрыть</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Модалка формы нового заказа -->
+  <div id="form-modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
+      <header class="modal__header">
+        <h2 id="form-modal-title" class="modal__title">Новый заказ</h2>
+        <button type="button" class="modal__close" id="form-modal-close" aria-label="Закрыть">×</button>
+      </header>
+      <form id="order-form" class="modal__body" novalidate>
+        <div class="form-field">
+          <label for="order-title">Название <span aria-hidden="true">*</span></label>
+          <input type="text" id="order-title" name="title" required minlength="3" autocomplete="off">
+          <span class="field-error" id="err-title" role="alert"></span>
+        </div>
+        <div class="form-field">
+          <label for="order-client">Клиент <span aria-hidden="true">*</span></label>
+          <input type="text" id="order-client" name="client" required minlength="2">
+          <span class="field-error" id="err-client" role="alert"></span>
+        </div>
+        <div class="form-field">
+          <label for="order-email">Email клиента</label>
+          <input type="email" id="order-email" name="email" placeholder="client@mail.ru">
+          <span class="field-error" id="err-email" role="alert"></span>
+        </div>
+        <div class="form-field">
+          <label for="order-priority">Приоритет</label>
+          <select id="order-priority" name="priority">
+            <option value="low">Низкий</option>
+            <option value="medium" selected>Средний</option>
+            <option value="high">Высокий</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="order-desc">Описание <span aria-hidden="true">*</span></label>
+          <textarea id="order-desc" name="description" rows="3" required minlength="10"></textarea>
+          <span class="field-error" id="err-desc" role="alert"></span>
+        </div>
+      </form>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--secondary" id="form-modal-cancel">Отмена</button>
+        <button type="submit" form="order-form" class="btn btn--primary">Создать</button>
+      </footer>
+    </div>
+  </div>
+
+  <div id="toast-root" class="toast-root" aria-live="polite" aria-relevant="additions"></div>
+
+  <script src="data.js"></script>
+  <script src="render.js"></script>
+  <script src="theme.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
